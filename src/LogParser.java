@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.ArrayList;
 
 class LogParser {
 	public static void main(String args[]) throws IOException {
@@ -6,12 +7,12 @@ class LogParser {
 		
 		FileWorker fw = new FileWorker();
 		
-		fw.read("/var/log/suricata/suricata.log");
+		ArrayList<LogStruct> eventsList = fw.read("/var/log/suricata/suricata.log");
 		
-		//LogStruct ls = new LogStruct();
-		
-		/*System.out.println(ls.getEventTime().getTime());
-		System.out.println(ls.getType());
-		System.out.println(ls.getMessage());*/
+		for (LogStruct log : eventsList) {
+			System.out.println(log.getEventTime().getTime());
+			System.out.println(log.getType());
+			System.out.println(log.getMessage() + '\n');
+		}
 	}
 }
