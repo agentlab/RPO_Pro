@@ -2,6 +2,8 @@ import java.io.File;
 //import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Scanner;
@@ -37,20 +39,41 @@ class FileWorker {
 			
 			logLine = scan.nextLine();
 
-			day = Integer.parseInt(logLine.substring(0, 2));
-			month = Integer.parseInt(logLine.substring(3, 5));
+			day = Integer.parseInt(logLine.substring(3, 5));
+			month = Integer.parseInt(logLine.substring(0, 2));
 			year = Integer.parseInt(logLine.substring(6, 10));
-			hour = Integer.parseInt(logLine.substring(14, 16));
-			min = Integer.parseInt(logLine.substring(17, 19));
-			sec = Integer.parseInt(logLine.substring(20, 22));
+			hour = Integer.parseInt(logLine.substring(11, 13));
+			min = Integer.parseInt(logLine.substring(14, 16));
+			sec = Integer.parseInt(logLine.substring(17, 19));
 
 			GregorianCalendar date = new GregorianCalendar(year, month - 1, day, hour, min, sec);
-
-			String type = logLine.substring(26, logLine.indexOf('>'));
-
-			String message = logLine.substring(logLine.indexOf('>') + 4);
 			
-			eventsList.add(new LogStruct(date, type, message));
+			logLine = logLine.substring(logLine.indexOf(']') + 2);
+			
+			String sTBB = logLine.substring(1, logLine.indexOf(']'));
+			
+			logLine = logLine.substring(logLine.indexOf(']') + 2);
+			
+			String message = logLine.substring(0, logLine.indexOf('[') - 1);
+			
+			logLine = logLine.substring(logLine.indexOf(']') + 2);
+
+			String type = logLine.substring(logLine.indexOf(':') + 2, logLine.indexOf(']'));
+
+			logLine = logLine.substring(logLine.indexOf(']') + 2);
+			
+			int priority = Integer.parseInt(logLine.substring(11, 12));
+			
+			logLine = logLine.substring(logLine.indexOf(']') + 2);
+			
+			String protocol = logLine.substring(1, 4);
+			
+			logLine = logLine.substring(logLine.indexOf('}') + 2);
+			
+			String sender = logLine.substring(0, logLine.indexOf(' '));
+			String receiver = logLine.substring(logLine.indexOf('>') + 2);
+			
+			eventsList.add(new LogStruct(date, type, message, sTBB, priority, protocol, sender, receiver));
 		}
 		
 		return eventsList;
