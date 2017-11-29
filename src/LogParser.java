@@ -7,7 +7,7 @@ class LogParser {
 		
 		FileWorker fw = new FileWorker();
 		
-		ArrayList<LogStruct> eventsList = fw.read("/var/log/suricata/fast.log");
+		ArrayList<LogStruct> eventsList = fw.read("/var/log/suricata/eve.json");
 		
 		for (LogStruct log : eventsList) {
 			System.out.println(log.getEventTime().getTime());

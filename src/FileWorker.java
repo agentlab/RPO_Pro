@@ -2,8 +2,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Scanner;
-import com.fasterxml.jackson.dataformat.xml.*;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+
 
 /*
  * TODO:
@@ -12,6 +17,8 @@ import com.fasterxml.jackson.dataformat.xml.*;
 
 class FileWorker {
 	public ArrayList<LogStruct> read(String fileName) throws IOException {
+		
+		JsonFactory factory = new JsonFactory();
 		
 		File log = new File(fileName);
 		
@@ -32,10 +39,37 @@ class FileWorker {
 		ArrayList<LogStruct> eventsList = new ArrayList<LogStruct>();
 		
 		int c;
+		
+		
 		while (scan.hasNext()) {
 			
+			HashMap<String, Object> oneLogMap = new HashMap<String, Object>();
+			
 			logLine = scan.nextLine();
-
+			
+			JsonParser parser = factory.createParser(logLine);
+			
+			String parseKey = new String();
+			String parseVal = new String();
+			
+			boolean tokenComplete = false;
+			
+			while(!parser.isClosed()) {
+				JsonToken token = parser.nextToken();
+				System.out.println(token);
+				if (JsonToken.FIELD_NAME.equals(token)) {
+					parseKey = parser.getCurrentName();
+				}
+				if(JsonToken.VALUE_STRING.equals(token) || JsonToken.VALUE_NUMBER_INT.equals(token)) {
+					parseVal = parser.getValueAsString();
+					tokenComplete = true;
+				}
+				if(tokenComplete) {
+					oneLogMap.put(parseKey, parseVal);
+					tokenComplete = false;
+				}
+			}
+			/*
 			day = Integer.parseInt(logLine.substring(3, 5));
 			month = Integer.parseInt(logLine.substring(0, 2));
 			year = Integer.parseInt(logLine.substring(6, 10));
@@ -71,6 +105,7 @@ class FileWorker {
 			String receiver = logLine.substring(logLine.indexOf('>') + 2);
 			
 			eventsList.add(new LogStruct(date, type, message, sTBB, priority, protocol, sender, receiver));
+		*/
 		}
 		
 		return eventsList;
