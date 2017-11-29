@@ -1,12 +1,9 @@
 import java.io.File;
-//import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Scanner;
+import com.fasterxml.jackson.dataformat.xml.*;
 
 /*
  * TODO:
