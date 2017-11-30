@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -40,75 +41,44 @@ class FileWorker {
 		
 		int c;
 		
+		ArrayList<HashMap<String, Object>> logList = new ArrayList<HashMap<String, Object>>();
 		
 		while (scan.hasNext()) {
-			
-			HashMap<String, Object> oneLogMap = new HashMap<String, Object>();
 			
 			logLine = scan.nextLine();
 			
 			JsonParser parser = factory.createParser(logLine);
 			
-			String parseKey = new String();
-			String parseVal = new String();
+			HashMap<String, Object> oneLogMap = parseDepth(parser);
 			
-			boolean tokenComplete = false;
-			
-			while(!parser.isClosed()) {
-				JsonToken token = parser.nextToken();
-				System.out.println(token);
-				if (JsonToken.FIELD_NAME.equals(token)) {
-					parseKey = parser.getCurrentName();
-				}
-				if(JsonToken.VALUE_STRING.equals(token) || JsonToken.VALUE_NUMBER_INT.equals(token)) {
-					parseVal = parser.getValueAsString();
-					tokenComplete = true;
-				}
-				if(tokenComplete) {
-					oneLogMap.put(parseKey, parseVal);
-					tokenComplete = false;
-				}
-			}
-			/*
-			day = Integer.parseInt(logLine.substring(3, 5));
-			month = Integer.parseInt(logLine.substring(0, 2));
-			year = Integer.parseInt(logLine.substring(6, 10));
-			hour = Integer.parseInt(logLine.substring(11, 13));
-			min = Integer.parseInt(logLine.substring(14, 16));
-			sec = Integer.parseInt(logLine.substring(17, 19));
-
-			GregorianCalendar date = new GregorianCalendar(year, month - 1, day, hour, min, sec);
-			
-			logLine = logLine.substring(logLine.indexOf(']') + 2);
-			
-			String sTBB = logLine.substring(1, logLine.indexOf(']'));
-			
-			logLine = logLine.substring(logLine.indexOf(']') + 2);
-			
-			String message = logLine.substring(0, logLine.indexOf('[') - 1);
-			
-			logLine = logLine.substring(logLine.indexOf(']') + 2);
-
-			String type = logLine.substring(logLine.indexOf(':') + 2, logLine.indexOf(']'));
-
-			logLine = logLine.substring(logLine.indexOf(']') + 2);
-			
-			int priority = Integer.parseInt(logLine.substring(11, 12));
-			
-			logLine = logLine.substring(logLine.indexOf(']') + 2);
-			
-			String protocol = logLine.substring(1, 4);
-			
-			logLine = logLine.substring(logLine.indexOf('}') + 2);
-			
-			String sender = logLine.substring(0, logLine.indexOf(' '));
-			String receiver = logLine.substring(logLine.indexOf('>') + 2);
-			
-			eventsList.add(new LogStruct(date, type, message, sTBB, priority, protocol, sender, receiver));
-		*/
+			logList.add(oneLogMap);
 		}
 		
 		return eventsList;
 		
+	}
+	
+	private HashMap<String, Object> parseDepth(JsonParser parser) throws IOException{
+		String parseKey = new String();
+		Object parseVal = new String();
+		
+		HashMap<String, Object> oneLogMap = new HashMap<String, Object>();
+		
+		while(!parser.isClosed()) {
+			JsonToken token = parser.nextToken();
+			if(JsonToken.FIELD_NAME.equals(token)) {
+				parseKey = parser.getCurrentName();
+			} else if(JsonToken.VALUE_STRING.equals(token) || JsonToken.VALUE_NUMBER_INT.equals(token)) {
+				parseVal = parser.getValueAsString();
+				oneLogMap.put(parseKey, parseVal);
+			} else if(JsonToken.START_OBJECT.equals(token)) {
+				parseVal = parseDepth(parser);
+				oneLogMap.put(parseKey, parseVal);
+			} else if(JsonToken.END_OBJECT.equals(token)) {
+				return oneLogMap;
+			}
+		}
+		
+		return null;
 	}
 }
