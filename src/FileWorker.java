@@ -11,13 +11,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 
-/*
- * TODO:
- * 1. Parse fast.log
- */
-
 class FileWorker {
-	public ArrayList<LogStruct> read(String fileName) throws IOException {
+	public ArrayList read(String fileName) throws IOException {
 		
 		JsonFactory factory = new JsonFactory();
 		
@@ -34,13 +29,6 @@ class FileWorker {
 		
 		String logLine = new String();
 		
-		int day, month, year;
-		int hour, min, sec;
-		
-		ArrayList<LogStruct> eventsList = new ArrayList<LogStruct>();
-		
-		int c;
-		
 		ArrayList<HashMap<String, Object>> logList = new ArrayList<HashMap<String, Object>>();
 		
 		while (scan.hasNext()) {
@@ -49,12 +37,14 @@ class FileWorker {
 			
 			JsonParser parser = factory.createParser(logLine);
 			
+			parser.nextToken();
+			
 			HashMap<String, Object> oneLogMap = parseDepth(parser);
 			
 			logList.add(oneLogMap);
 		}
 		
-		return eventsList;
+		return logList;
 		
 	}
 	
@@ -68,8 +58,18 @@ class FileWorker {
 			JsonToken token = parser.nextToken();
 			if(JsonToken.FIELD_NAME.equals(token)) {
 				parseKey = parser.getCurrentName();
-			} else if(JsonToken.VALUE_STRING.equals(token) || JsonToken.VALUE_NUMBER_INT.equals(token)) {
+			} else if(JsonToken.VALUE_STRING.equals(token)) {
 				parseVal = parser.getValueAsString();
+				oneLogMap.put(parseKey, parseVal);
+			} else if(JsonToken.VALUE_NUMBER_INT.equals(token)){
+				if (!parseKey.equals("flow_id")) {
+					parseVal = parser.getValueAsInt();
+				} else {
+					parseVal = parser.getValueAsString();
+				}
+				oneLogMap.put(parseKey, parseVal);
+			} else if(JsonToken.VALUE_TRUE.equals(token) || JsonToken.VALUE_FALSE.equals(token)){
+				parseVal = parser.getValueAsBoolean();
 				oneLogMap.put(parseKey, parseVal);
 			} else if(JsonToken.START_OBJECT.equals(token)) {
 				parseVal = parseDepth(parser);
