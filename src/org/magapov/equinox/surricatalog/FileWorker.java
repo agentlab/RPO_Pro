@@ -1,3 +1,5 @@
+package org.magapov.equinox.surricatalog;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -93,13 +95,15 @@ class FileWorker extends Thread{
 
 				HashMap<String, Object> oneLogMap = parseDepth(parser);
 				// Experimental start
-				SerializationUtils.serialize(oneLogMap, outputStream);
+				byte[] serializedOneLog = SerializationUtils.serialize(oneLogMap);
+				outputStream.write(serializedOneLog);
 				outputStream.writeBytes(separator);
 				
 				System.out.println("newLog");
 				// Experimental end
 			} else {
-				FileWorker.sleep(100);
+				System.out.println("wait......");
+				FileWorker.sleep(1000);
 			}
 		}
 		// Experimental start
