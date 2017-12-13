@@ -10,12 +10,12 @@ import org.apache.hadoop.fs.Path;
 import org.apache.commons.lang.SerializationUtils;
 
 class LogParser {
-	public static void main(String args[]) throws IOException {
+	public static void main(String args[]) throws IOException, InterruptedException {
 		System.out.println("My first Java app\n");
 		
 		FileWorker fw = new FileWorker();
 		
-		ArrayList<HashMap> eventsList = fw.read("/var/log/suricata/eve.json");
+		//ArrayList<HashMap> eventsList = fw.read("/var/log/suricata/eve.json");
 		
 		String hdfsURI = "hdfs://localhost:9000";
 		String path = "/suricataLog";
