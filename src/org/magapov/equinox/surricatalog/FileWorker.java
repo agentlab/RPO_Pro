@@ -1,12 +1,11 @@
 package org.magapov.equinox.surricatalog;
 
-import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Scanner;
 
 import org.apache.commons.lang.SerializationUtils;
@@ -42,23 +41,13 @@ class FileWorker extends Thread{
 		
 		JsonFactory factory = new JsonFactory();
 		
-		File log = new File(fileName);
+		InputStream logStream = new FileInputStream(fileName);
 		
-		Scanner scan = null;
-		try {
-			scan = new Scanner(log);
-			
-		} catch(IOException ex) {
-			System.out.println(ex.getMessage());
-			return null;
-		}
-		
+		Scanner scan = new Scanner(logStream);
+				
 		String logLine = new String();
 		
 		ArrayList<HashMap<String, Object>> logList = new ArrayList<HashMap<String, Object>>();
-		//Experimental start
-		
-		String separator = new String("NEXTLOG");
 		
 		String hdfsURI = "hdfs://localhost:9000";
 		String path = "/suricataLog";
@@ -75,7 +64,7 @@ class FileWorker extends Thread{
 	    
 	    FileSystem fs = FileSystem.get(URI.create(hdfsURI), conf);
 	    
-	    Path newFolderPath = new Path(path);
+	    Path newFolderPath = new Path(path + String.format("%d", System.currentTimeMillis()/1000));
 	    
 	    if (!fs.exists(newFolderPath)) {
 			fs.mkdirs(newFolderPath);
@@ -83,10 +72,9 @@ class FileWorker extends Thread{
 	    
 	    Path hdfswritepath = new Path(newFolderPath + "/" + hdfsFileName);
 		FSDataOutputStream outputStream = fs.create(hdfswritepath);
-	    //Experimental end
 		
 		while (this.isAlive()) {
-			if (scan.hasNext()) {
+			if (scan.hasNextLine()) {
 				logLine = scan.nextLine();
 
 				JsonParser parser = factory.createParser(logLine);
@@ -94,23 +82,20 @@ class FileWorker extends Thread{
 				parser.nextToken();
 
 				HashMap<String, Object> oneLogMap = parseDepth(parser);
-				// Experimental start
 				byte[] serializedOneLog = SerializationUtils.serialize(oneLogMap);
 				outputStream.write(serializedOneLog);
-				outputStream.writeBytes(separator);
+				outputStream.writeBytes("NEXTLOG");
 				
-				System.out.println("newLog");
-				// Experimental end
+				System.out.println("newLog, available: " + logStream.available());
 			} else {
 				System.out.println("wait......");
 				FileWorker.sleep(1000);
 			}
 		}
-		// Experimental start
+		
 		scan.close();
 		outputStream.close();
 		this.interrupt();
-		// Experimental end
 		return logList;
 	}
 	
