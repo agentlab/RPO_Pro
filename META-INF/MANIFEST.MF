@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+
+Bundle-ManifestVersion: 2
+
+Bundle-Name: Suricata log parser test bundle
+
+Bundle-SymbolicName: org.magapov.equinox.surricatalog
+
+Bundle-Version: 1.0.0
+
+Bundle-Activator: org.magapov.equinox.surricatalog.Activator
+
+Require-Bundle: org.eclipse.osgi

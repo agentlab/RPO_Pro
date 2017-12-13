@@ -1,3 +1,5 @@
+package org.magapov.equinox.surricatalog;
+
 import java.io.IOException;
 import java.lang.InterruptedException;
 

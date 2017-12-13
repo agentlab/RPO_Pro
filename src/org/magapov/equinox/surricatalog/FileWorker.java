@@ -1,3 +1,5 @@
+package org.magapov.equinox.surricatalog;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
