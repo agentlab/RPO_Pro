@@ -84,8 +84,7 @@ class FileWorker implements Runnable{
 				outputStream.write(serializedOneLog);
 				outputStream.writeBytes("NEXTLOG");
 				
-				System.out.println("newLog, available: " + logStream.available());
-				System.out.println(logLine);
+				System.out.println("newLog");
 			} else {
 				System.out.println("wait......");
 				Thread.sleep(1000);
