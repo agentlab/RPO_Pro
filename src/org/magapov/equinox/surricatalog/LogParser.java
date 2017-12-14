@@ -8,5 +8,7 @@ class LogParser {
 		System.out.println("My first Java app\n");
 		
 		FileWorker fw = new FileWorker();
+		Thread myThread = new Thread(fw);
+		myThread.start();
 	}
 }

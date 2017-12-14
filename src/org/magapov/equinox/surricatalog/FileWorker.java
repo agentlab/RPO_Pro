@@ -1,8 +1,10 @@
 package org.magapov.equinox.surricatalog;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,11 +21,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 
-class FileWorker extends Thread{
-	FileWorker(){
-		this.start();
-	}
-	
+class FileWorker implements Runnable{
 	@Override
 	public void run() {
 		try {
@@ -43,7 +41,7 @@ class FileWorker extends Thread{
 		
 		InputStream logStream = new FileInputStream(fileName);
 		
-		Scanner scan = new Scanner(logStream);
+		BufferedReader scan = new BufferedReader(new InputStreamReader(logStream));
 				
 		String logLine = new String();
 		
@@ -73,9 +71,9 @@ class FileWorker extends Thread{
 	    Path hdfswritepath = new Path(newFolderPath + "/" + hdfsFileName);
 		FSDataOutputStream outputStream = fs.create(hdfswritepath);
 		
-		while (this.isAlive()) {
-			if (scan.hasNextLine()) {
-				logLine = scan.nextLine();
+		while (Thread.currentThread().isAlive()) {
+			if (scan.ready()) {
+				logLine = scan.readLine();
 
 				JsonParser parser = factory.createParser(logLine);
 
@@ -87,15 +85,15 @@ class FileWorker extends Thread{
 				outputStream.writeBytes("NEXTLOG");
 				
 				System.out.println("newLog, available: " + logStream.available());
+				System.out.println(logLine);
 			} else {
 				System.out.println("wait......");
-				FileWorker.sleep(1000);
+				Thread.sleep(1000);
 			}
 		}
 		
 		scan.close();
 		outputStream.close();
-		this.interrupt();
 		return logList;
 	}
 	
