@@ -7,18 +7,18 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
-import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import org.jsontocsv.parser.JsonFlattener;
 
 
 class FileWorker implements Runnable{
@@ -32,20 +32,18 @@ class FileWorker implements Runnable{
 		}
 		catch (InterruptedException intEx) {
 			System.err.println("InterruptException" + intEx);
+		} catch (Exception e) {
+			System.err.println("Exception" + e);
 		}		
 	}
 	
-	public ArrayList read(String fileName) throws IOException, InterruptedException {
-		
-		JsonFactory factory = new JsonFactory();
+	public void read(String fileName) throws Exception {
 		
 		InputStream logStream = new FileInputStream(fileName);
 		
 		BufferedReader scan = new BufferedReader(new InputStreamReader(logStream));
 				
 		String logLine = new String();
-		
-		ArrayList<HashMap<String, Object>> logList = new ArrayList<HashMap<String, Object>>();
 		
 		String hdfsURI = "hdfs://localhost:9000";
 		String path = "/suricataLog";
@@ -56,6 +54,7 @@ class FileWorker implements Runnable{
 		
 		conf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
 	    conf.set("fs.file.impl", org.apache.hadoop.fs.LocalFileSystem.class.getName());
+	    conf.setBoolean("dfs.support.append", true);
 	    
 	    System.setProperty("HADOOP_USER_NAME", "hduser");
 	    System.setProperty("hadoop.home.dir", "/");
@@ -73,19 +72,22 @@ class FileWorker implements Runnable{
 		
 		while (Thread.currentThread().isAlive()) {
 			if (scan.ready()) {
-				logLine = scan.readLine();
-
-				JsonParser parser = factory.createParser(logLine);
-
-				parser.nextToken();
-
-				HashMap<String, Object> oneLogMap = parseDepth(parser);
-				byte[] serializedOneLog = SerializationUtils.serialize(oneLogMap);
-				outputStream.write(serializedOneLog);
-				outputStream.writeBytes("NEXTLOG");
 				
-				System.out.println("newLog, available: " + logStream.available());
-				System.out.println(logLine);
+				logLine = scan.readLine();
+				
+				JsonFlattener jsonToCsvParser = new JsonFlattener();
+				
+				List<Map<String, String>> flatJson = jsonToCsvParser.parseJson(logLine);
+				
+				Set<String> headers = collectHeaders(flatJson);
+		        String output = StringUtils.join(headers.toArray(), ",") + "\n";
+		        for (Map<String, String> map : flatJson) {
+		            output = output + getCommaSeperatedRow(headers, map) + "\n";
+		        }
+		        byte[] logCSV = output.getBytes();
+				outputStream.write(logCSV);
+				
+				System.out.println("newLog");
 			} else {
 				System.out.println("wait......");
 				Thread.sleep(1000);
@@ -94,40 +96,22 @@ class FileWorker implements Runnable{
 		
 		scan.close();
 		outputStream.close();
-		return logList;
 	}
 	
-	private HashMap<String, Object> parseDepth(JsonParser parser) throws IOException{
-		String parseKey = new String();
-		Object parseVal = new String();
-		
-		HashMap<String, Object> oneLogMap = new HashMap<String, Object>();
-		
-		while(!parser.isClosed()) {
-			JsonToken token = parser.nextToken();
-			if(JsonToken.FIELD_NAME.equals(token)) {
-				parseKey = parser.getCurrentName();
-			} else if(JsonToken.VALUE_STRING.equals(token)) {
-				parseVal = parser.getValueAsString();
-				oneLogMap.put(parseKey, parseVal);
-			} else if(JsonToken.VALUE_NUMBER_INT.equals(token)){
-				if (!parseKey.equals("flow_id")) {
-					parseVal = parser.getValueAsInt();
-				} else {
-					parseVal = parser.getValueAsString();
-				}
-				oneLogMap.put(parseKey, parseVal);
-			} else if(JsonToken.VALUE_TRUE.equals(token) || JsonToken.VALUE_FALSE.equals(token)){
-				parseVal = parser.getValueAsBoolean();
-				oneLogMap.put(parseKey, parseVal);
-			} else if(JsonToken.START_OBJECT.equals(token)) {
-				parseVal = parseDepth(parser);
-				oneLogMap.put(parseKey, parseVal);
-			} else if(JsonToken.END_OBJECT.equals(token)) {
-				return oneLogMap;
-			}
-		}
-		
-		return null;
-	}
+	private Set<String> collectHeaders(List<Map<String, String>> flatJson) {
+        Set<String> headers = new TreeSet<String>();
+        for (Map<String, String> map : flatJson) {
+            headers.addAll(map.keySet());
+        }
+        return headers;
+    }
+	
+	private String getCommaSeperatedRow(Set<String> headers, Map<String, String> map) {
+        List<String> items = new ArrayList<String>();
+        for (String header : headers) {
+            String value = map.get(header) == null ? "" : map.get(header).replace(",", "");
+            items.add(value);
+        }
+        return StringUtils.join(items.toArray(), ",");
+    }
 }
