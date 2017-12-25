@@ -2,6 +2,7 @@ package org.magapov.equinox.surricatalog;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,23 +22,37 @@ import org.apache.hadoop.fs.Path;
 import org.jsontocsv.parser.JsonFlattener;
 
 
-class FileWorker implements Runnable{
-	@Override
-	public void run() {
-		try {
-			this.read("/var/log/suricata/eve.json");
-		}
-		catch (IOException ioEx) {
-			System.err.println("IOException" + ioEx);
-		}
-		catch (InterruptedException intEx) {
-			System.err.println("InterruptException" + intEx);
-		} catch (Exception e) {
-			System.err.println("Exception" + e);
-		}		
+public class FileWorker implements Runnable{
+	private String logFileName;
+	
+	public FileWorker(String logFN) {
+		logFileName = logFN;
 	}
 	
-	public void read(String fileName) throws Exception {
+	public FileWorker() {
+		this("/var/log/suricata/eve.json");
+	}
+	
+	@Override
+	public void run(){
+		try {
+		this.read(logFileName);
+		}
+		catch (FileNotFoundException fileEx) {
+			System.err.println("Exception: file " + logFileName + "not found." + fileEx);
+		}
+		catch (IOException ioEx) {
+			System.err.println("Exception: Cannot connect to hdfs." + ioEx);
+		}
+		catch (InterruptedException intEx) {
+			System.err.println("Exception: Cannot turn Thread to sleep." + intEx);
+		}
+		catch (Exception e) {
+			System.err.println("Exception: " + e);
+		}
+	}
+	
+	public void read(String fileName) throws Exception  {
 		
 		InputStream logStream = new FileInputStream(fileName);
 		
