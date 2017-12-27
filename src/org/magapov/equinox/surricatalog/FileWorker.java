@@ -39,7 +39,7 @@ public class FileWorker implements Runnable{
 		this.read(logFileName);
 		}
 		catch (FileNotFoundException fileEx) {
-			System.err.println("Exception: file " + logFileName + "not found." + fileEx);
+			System.err.println("Exception: file " + logFileName + " not found. (" + fileEx + ")");
 		}
 		catch (IOException ioEx) {
 			System.err.println("Exception: Cannot connect to hdfs." + ioEx);
