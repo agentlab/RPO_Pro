@@ -14,15 +14,20 @@ import org.junit.runners.MethodSorters;
 
 
 public class FileWorkerTest {
+	@Test
+	public void EmptyTest() {
+		assertTrue(true);
+	}
+	
 	@Test(expected = FileNotFoundException.class)
-	public void FileNotFoundTest() {
+	public void FileNotFoundTest() throws Exception{
 		FileWorker fw = new FileWorker("/home/dts/123123123.dat");
 		Thread th = new Thread(fw);
 		th.start();
 	}
 	
 	@Test(expected = IOException.class)
-	public void IOExceptionTest() {
+	public void IOExceptionTest() throws Exception {
 		FileWorker fw = new FileWorker("/var/log/surricata/eve.json");
 		Thread th = new Thread(fw);
 		th.start();
@@ -30,7 +35,7 @@ public class FileWorkerTest {
 	
 	//Пока не знаю как протестить
 	@Test(expected = InterruptedException.class)
-	public void InterruptedExceptionTest() {
+	public void InterruptedExceptionTest() throws Exception {
 		FileWorker fw = new FileWorker("/var/log/surricata/eve.json");
 		Thread th = new Thread(fw);
 		th.start();
