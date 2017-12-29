@@ -21,9 +21,13 @@ import org.apache.hadoop.fs.Path;
 
 import org.jsontocsv.parser.JsonFlattener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class FileWorker implements Runnable{
 	private String logFileName;
+	private static final Logger LOG = LoggerFactory.getLogger(FileWorker.class);
 	
 	public FileWorker(String logFN) {
 		logFileName = logFN;
@@ -40,15 +44,19 @@ public class FileWorker implements Runnable{
 		}
 		catch (FileNotFoundException fileEx) {
 			System.err.println("Exception: file " + logFileName + " not found. (" + fileEx + ")");
+			LOG.info("FileNotFoundException throws");
 		}
 		catch (IOException ioEx) {
 			System.err.println("Exception: Cannot connect to hdfs." + ioEx);
+			LOG.info("IOException throws");
 		}
 		catch (InterruptedException intEx) {
 			System.err.println("Exception: Cannot turn Thread to sleep." + intEx);
+			LOG.info("InterruptedException throws");
 		}
 		catch (Exception e) {
 			System.err.println("Exception: " + e);
+			LOG.info("Exception throws");
 		}
 	}
 	
