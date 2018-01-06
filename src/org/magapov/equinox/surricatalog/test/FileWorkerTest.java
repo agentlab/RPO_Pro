@@ -47,11 +47,6 @@ public class FileWorkerTest {
     }
 	
 	@Test
-	public void EmptyTest() {
-		assertTrue(true);
-	}
-	
-	@Test
 	public void FileNotFoundTest() throws Exception{
 		FileWorker fw = new FileWorker("/home/dts/123123123.dat");
 		Thread th = new Thread(fw);
@@ -63,19 +58,25 @@ public class FileWorkerTest {
         assertEquals(loggingEvent.getMessage(), "FileNotFoundException throws");
 	}
 	
-	@Test(expected = IOException.class)
+	@Test
 	public void IOExceptionTest() throws Exception {
-		FileWorker fw = new FileWorker("/var/log/surricata/eve.json");
+		FileWorker fw = new FileWorker();
 		Thread th = new Thread(fw);
 		th.start();
+		
+		verify(mockAppender).doAppend(captorLoggingEvent.capture());
+        final LoggingEvent loggingEvent = captorLoggingEvent.getValue();
+        assertThat(loggingEvent.getLevel(), is(Level.INFO));
+        assertEquals(loggingEvent.getMessage(), "IOException throws");
 	}
 	
 	//Пока не знаю как протестить
-	@Test(expected = InterruptedException.class)
+	@Test
 	public void InterruptedExceptionTest() throws Exception {
 		FileWorker fw = new FileWorker("/var/log/surricata/eve.json");
 		Thread th = new Thread(fw);
 		th.start();
+		assertTrue(true);
 	}
 	
 	
