@@ -51,7 +51,7 @@ public class FileWorkerTest {
 		assertTrue(true);
 	}
 	
-	@Test(expected = FileNotFoundException.class)
+	@Test
 	public void FileNotFoundTest() throws Exception{
 		FileWorker fw = new FileWorker("/home/dts/123123123.dat");
 		Thread th = new Thread(fw);
@@ -60,7 +60,7 @@ public class FileWorkerTest {
 		verify(mockAppender).doAppend(captorLoggingEvent.capture());
         final LoggingEvent loggingEvent = captorLoggingEvent.getValue();
         assertThat(loggingEvent.getLevel(), is(Level.INFO));
-        assertThat(loggingEvent.getMessage(), is("FileNotFoundException throws"));
+        assertEquals(loggingEvent.getMessage(), "FileNotFoundException throws");
 	}
 	
 	@Test(expected = IOException.class)

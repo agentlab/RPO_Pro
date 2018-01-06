@@ -43,20 +43,24 @@ public class FileWorker implements Runnable{
 		this.read(logFileName);
 		}
 		catch (FileNotFoundException fileEx) {
-			System.err.println("Exception: file " + logFileName + " not found. (" + fileEx + ")");
+			//System.err.println("Exception: file " + logFileName + " not found. (" + fileEx + ")");
 			LOG.info("FileNotFoundException throws");
+			Thread.currentThread().interrupt();
 		}
 		catch (IOException ioEx) {
 			System.err.println("Exception: Cannot connect to hdfs." + ioEx);
 			LOG.info("IOException throws");
+			Thread.currentThread().interrupt();
 		}
 		catch (InterruptedException intEx) {
 			System.err.println("Exception: Cannot turn Thread to sleep." + intEx);
 			LOG.info("InterruptedException throws");
+			Thread.currentThread().interrupt();
 		}
 		catch (Exception e) {
 			System.err.println("Exception: " + e);
 			LOG.info("Exception throws");
+			Thread.currentThread().interrupt();
 		}
 	}
 	
