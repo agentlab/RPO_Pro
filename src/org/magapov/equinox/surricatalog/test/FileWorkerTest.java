@@ -43,22 +43,167 @@ public class FileWorkerTest {
 	private ArgumentCaptor<LoggingEvent> captorLoggingEvent;
 	
 	@Before
-	public void setup() {
+	public void setup() throws InterruptedException {
         final Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        logger.setLevel(Level.INFO);
         logger.addAppender(mockAppender);
         captorLoggingEvent = ArgumentCaptor.forClass(LoggingEvent.class);
     }
 	
 	@After
-    public void teardown() {
+    public void teardown() throws InterruptedException {
         final Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         logger.detachAppender(mockAppender);
     }
 	
 	@Test
+	public void write1log() {
+		FileWorker fw = new FileWorker("/var/log/suricata/1.json", "hdfs://localhost:9000");
+		Thread th = new Thread(fw);
+		th.setName("Write1LogThread");
+		th.start();
+		while(th.getState() != Thread.State.TIMED_WAITING);
+		th.interrupt();
+		while(th.isAlive());
+		
+		assertTrue(true);
+	}
+	
+	@Test
+	public void write10000log() {
+		FileWorker fw = new FileWorker("/var/log/suricata/10000.json", "hdfs://localhost:9000");
+		Thread th = new Thread(fw);
+		th.setName("Write10000LogThread");
+		th.start();
+		while(th.getState() != Thread.State.TIMED_WAITING);
+		th.interrupt();
+		while(th.isAlive());
+		
+		assertTrue(true);
+	}
+	
+	@Test
+	public void write20000log() {
+		FileWorker fw = new FileWorker("/var/log/suricata/20000.json", "hdfs://localhost:9000");
+		Thread th = new Thread(fw);
+		th.setName("Write20000LogThread");
+		th.start();
+		while(th.getState() != Thread.State.TIMED_WAITING);
+		th.interrupt();
+		while(th.isAlive());
+		
+		assertTrue(true);
+	}
+	
+	@Test
+	public void write30000log() {
+		FileWorker fw = new FileWorker("/var/log/suricata/30000.json", "hdfs://localhost:9000");
+		Thread th = new Thread(fw);
+		th.setName("Write30000LogThread");
+		th.start();
+		while(th.getState() != Thread.State.TIMED_WAITING);
+		th.interrupt();
+		while(th.isAlive());
+		
+		assertTrue(true);
+	}
+	
+	@Test
+	public void write4000log() {
+		FileWorker fw = new FileWorker("/var/log/suricata/40000.json", "hdfs://localhost:9000");
+		Thread th = new Thread(fw);
+		th.setName("Write40000LogThread");
+		th.start();
+		while(th.getState() != Thread.State.TIMED_WAITING);
+		th.interrupt();
+		while(th.isAlive());
+		
+		assertTrue(true);
+	}
+	
+	@Test
+	public void write50000log() {
+		FileWorker fw = new FileWorker("/var/log/suricata/50000.json", "hdfs://localhost:9000");
+		Thread th = new Thread(fw);
+		th.setName("Write50000LogThread");
+		th.start();
+		while(th.getState() != Thread.State.TIMED_WAITING);
+		th.interrupt();
+		while(th.isAlive());
+		
+		assertTrue(true);
+	}
+	
+	@Test
+	public void write60000log() {
+		FileWorker fw = new FileWorker("/var/log/suricata/60000.json", "hdfs://localhost:9000");
+		Thread th = new Thread(fw);
+		th.setName("Write60000LogThread");
+		th.start();
+		while(th.getState() != Thread.State.TIMED_WAITING);
+		th.interrupt();
+		while(th.isAlive());
+		
+		assertTrue(true);
+	}
+	
+	@Test
+	public void write70000log() {
+		FileWorker fw = new FileWorker("/var/log/suricata/70000.json", "hdfs://localhost:9000");
+		Thread th = new Thread(fw);
+		th.setName("Write70000LogThread");
+		th.start();
+		while(th.getState() != Thread.State.TIMED_WAITING);
+		th.interrupt();
+		while(th.isAlive());
+		
+		assertTrue(true);
+	}
+	
+	@Test
+	public void write80000log() {
+		FileWorker fw = new FileWorker("/var/log/suricata/80000.json", "hdfs://localhost:9000");
+		Thread th = new Thread(fw);
+		th.setName("Write80000LogThread");
+		th.start();
+		while(th.getState() != Thread.State.TIMED_WAITING);
+		th.interrupt();
+		while(th.isAlive());
+		
+		assertTrue(true);
+	}
+	
+	@Test
+	public void write90000log() {
+		FileWorker fw = new FileWorker("/var/log/suricata/90000.json", "hdfs://localhost:9000");
+		Thread th = new Thread(fw);
+		th.setName("Write90000LogThread");
+		th.start();
+		while(th.getState() != Thread.State.TIMED_WAITING);
+		th.interrupt();
+		while(th.isAlive());
+		
+		assertTrue(true);
+	}
+	
+	@Test
+	public void write100000log() {
+		FileWorker fw = new FileWorker("/var/log/suricata/100000.json", "hdfs://localhost:9000");
+		Thread th = new Thread(fw);
+		th.setName("Write100000LogThread");
+		th.start();
+		while(th.getState() != Thread.State.TIMED_WAITING);
+		th.interrupt();
+		while(th.isAlive());
+		
+		assertTrue(true);
+	}
+	
+	@Test
 	public void expectedWrongFile() throws Exception{
 		FileWorker fw = new FileWorker("/home/dts/123123123.dat", "hdfs://localhost:9000");
 		Thread th = new Thread(fw);
+		th.setName("WrongFileThread");
 		th.start();
 		
 		Thread.currentThread().sleep(10);
@@ -69,15 +214,18 @@ public class FileWorkerTest {
         
         th.interrupt();
         while(th.isAlive());
+        assertTrue(true);
 	}
 	
 	@Test
 	public void expectedWrongConnect() throws Exception {
+		Thread.currentThread().sleep(1000);
 		FileWorker fw = new FileWorker("hdfs://localhost:1234");
 		Thread th = new Thread(fw);
+		th.setName("WrongConnectThread");
 		th.start();
 		
-		Thread.currentThread().sleep(10000);
+		Thread.currentThread().sleep(7000);
 		verify(mockAppender, atLeast(1)).doAppend(captorLoggingEvent.capture());
         final LoggingEvent loggingEvent = captorLoggingEvent.getValue();
         assertThat(loggingEvent.getLevel(), is(Level.INFO));

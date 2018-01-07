@@ -105,7 +105,7 @@ public class FileWorker implements Runnable {
 					byte[] logCSV = output.getBytes();
 					outputStream.write(logCSV);
 
-					System.out.println("newLog");
+					//System.out.println("newLog");
 				} else {
 					System.out.println("wait......" + Thread.currentThread().getName());
 					Thread.sleep(1000);
@@ -114,6 +114,7 @@ public class FileWorker implements Runnable {
 		} catch (InterruptedException intEx) {
 			scan.close();
 			outputStream.close();
+			fs.close();
 		}
 	}
 
