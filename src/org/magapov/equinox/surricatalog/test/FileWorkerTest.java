@@ -14,6 +14,9 @@ import org.junit.runner.RunWith;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.atLeast;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -38,6 +41,7 @@ public class FileWorkerTest {
 	public void setup() {
         final Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         logger.addAppender(mockAppender);
+        captorLoggingEvent = ArgumentCaptor.forClass(LoggingEvent.class);
     }
 	
 	@After
@@ -47,37 +51,36 @@ public class FileWorkerTest {
     }
 	
 	@Test
-	public void FileNotFoundTest() throws Exception{
+	public void emptyTest() {
+		assertTrue(true);
+	}
+	
+	@Test
+	public void expectedWrongFile() throws Exception{
 		FileWorker fw = new FileWorker("/home/dts/123123123.dat");
 		Thread th = new Thread(fw);
 		th.start();
 		
-		verify(mockAppender).doAppend(captorLoggingEvent.capture());
+		Thread.currentThread().sleep(10);
+		verify(mockAppender, atLeast(1)).doAppend(captorLoggingEvent.capture());
         final LoggingEvent loggingEvent = captorLoggingEvent.getValue();
         assertThat(loggingEvent.getLevel(), is(Level.INFO));
-        assertEquals(loggingEvent.getMessage(), "FileNotFoundException throws");
+        assertThat(loggingEvent.getMessage(), is("FileNotFoundException throws"));
 	}
 	
 	@Test
-	public void IOExceptionTest() throws Exception {
+	public void expectedWrongConnect() throws Exception {
 		FileWorker fw = new FileWorker();
 		Thread th = new Thread(fw);
 		th.start();
 		
-		verify(mockAppender).doAppend(captorLoggingEvent.capture());
+		Thread.currentThread().sleep(10000);
+		verify(mockAppender, atLeast(1)).doAppend(captorLoggingEvent.capture());
         final LoggingEvent loggingEvent = captorLoggingEvent.getValue();
         assertThat(loggingEvent.getLevel(), is(Level.INFO));
-        assertEquals(loggingEvent.getMessage(), "IOException throws");
+        assertThat(loggingEvent.getMessage(), is("IOException throws"));
 	}
 	
-	//Пока не знаю как протестить
-	@Test
-	public void InterruptedExceptionTest() throws Exception {
-		FileWorker fw = new FileWorker("/var/log/surricata/eve.json");
-		Thread th = new Thread(fw);
-		th.start();
-		assertTrue(true);
-	}
 	
 	
 }

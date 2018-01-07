@@ -64,7 +64,7 @@ public class FileWorker implements Runnable{
 		}
 	}
 	
-	public void read(String fileName) throws Exception  {
+	public void read(String fileName) throws Exception {
 		
 		InputStream logStream = new FileInputStream(fileName);
 		
