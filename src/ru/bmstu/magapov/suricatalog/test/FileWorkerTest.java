@@ -1,6 +1,4 @@
-package org.magapov.equinox.surricatalog.test;
-
-import org.magapov.equinox.surricatalog.FileWorker;
+package ru.bmstu.magapov.suricatalog.test;
 
 import static org.junit.Assert.*;
 
@@ -32,6 +30,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
+import ru.bmstu.magapov.suricatalog.FileWorker;
 
 
 @RunWith(MockitoJUnitRunner.class)

@@ -1,4 +1,4 @@
-package org.magapov.equinox.surricatalog;
+package ru.bmstu.magapov.suricatalog;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -100,12 +100,10 @@ public class FileWorker implements Runnable {
 					Set<String> headers = collectHeaders(flatJson);
 					String output = StringUtils.join(headers.toArray(), ",") + "\n";
 					for (Map<String, String> map : flatJson) {
-						output = output + getCommaSeperatedRow(headers, map) + "\n";
+						output = output + getCommaSeparatedRow(headers, map) + "\n";
 					}
 					byte[] logCSV = output.getBytes();
 					outputStream.write(logCSV);
-
-					//System.out.println("newLog");
 				} else {
 					System.out.println("wait......" + Thread.currentThread().getName());
 					Thread.sleep(1000);
@@ -126,7 +124,7 @@ public class FileWorker implements Runnable {
 		return headers;
 	}
 
-	private String getCommaSeperatedRow(Set<String> headers, Map<String, String> map) {
+	private String getCommaSeparatedRow(Set<String> headers, Map<String, String> map) {
 		List<String> items = new ArrayList<String>();
 		for (String header : headers) {
 			String value = map.get(header) == null ? "" : map.get(header).replace(",", "");
