@@ -108,7 +108,7 @@ public class FileWorkerTest {
 	}
 	
 	@Test
-	public void write4000log() {
+	public void write40000log() {
 		FileWorker fw = new FileWorker("/var/log/suricata/40000.json", "hdfs://localhost:9000");
 		Thread th = new Thread(fw);
 		th.setName("Write40000LogThread");
@@ -198,7 +198,7 @@ public class FileWorkerTest {
 		assertTrue(true);
 	}
 	
-	@Test
+	/*@Test
 	public void expectedWrongFile() throws Exception{
 		FileWorker fw = new FileWorker("/home/dts/123123123.dat", "hdfs://localhost:9000");
 		Thread th = new Thread(fw);
@@ -284,6 +284,6 @@ public class FileWorkerTest {
 	    
 	    assertEquals(inStr, "FirstField,SecondField\n" + 
 	    		"FirstValue,SecondValue\n");
-	}
+	}*/
 	
 }
