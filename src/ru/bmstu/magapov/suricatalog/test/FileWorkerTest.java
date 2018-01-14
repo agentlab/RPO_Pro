@@ -198,7 +198,7 @@ public class FileWorkerTest {
 		assertTrue(true);
 	}
 	
-	/*@Test
+	@Test
 	public void expectedWrongFile() throws Exception{
 		FileWorker fw = new FileWorker("/home/dts/123123123.dat", "hdfs://localhost:9000");
 		Thread th = new Thread(fw);
@@ -236,7 +236,8 @@ public class FileWorkerTest {
 	
 	@Test
 	public void writeAndRead() throws Exception {
-		String writeStr = "{\"FirstField\": \"FirstValue\", \"SecondField\": \"SecondValue\"}";
+		String writeStr = "{\"FirstField\": \"FirstValue\", \"SecondField\": \"SecondValue\"}" + "\n" +
+							"{\"FirstField\": \"OneMoreValue\", \"ThirdField\": {\"NewField\": \"NewValue\", \"NewField2\": \"NewValue2\"}}";
 		PrintWriter writer = new PrintWriter("test.json", "UTF-8");
 		writer.println(writeStr);
 		writer.close();
@@ -272,18 +273,23 @@ public class FileWorkerTest {
 	    assertTrue(fs.exists(newFolderPath));
 	    
 	    Path hdfsReadPath = new Path(newFolderPath + "/" + hdfsFileName);
+	    Path hdfsReadPathHead = new Path(newFolderPath + "/" + hdfsFileName + ".head");
 	    
 	    assertTrue(fs.exists(hdfsReadPath));
+	    assertTrue(fs.exists(hdfsReadPathHead));
 	    
 	    FSDataInputStream inStream = fs.open(hdfsReadPath);
+	    FSDataInputStream inStreamHead = fs.open(hdfsReadPathHead);
 	    
 	    String inStr = IOUtils.toString(inStream, "UTF-8");
+	    String inStrHead = IOUtils.toString(inStreamHead, "UTF-8");
 	    
 	    inStream.close();
+	    inStreamHead.close();
 	    fs.close();
 	    
-	    assertEquals(inStr, "FirstField,SecondField\n" + 
-	    		"FirstValue,SecondValue\n");
-	}*/
+	    assertEquals(inStr, "FirstValue|SecondValue\nOneMoreValue||NewValue|NewValue2\n");
+	    assertEquals(inStrHead, "FirstField|SecondField|ThirdField-NewField|ThirdField-NewField2|");
+	}
 	
 }

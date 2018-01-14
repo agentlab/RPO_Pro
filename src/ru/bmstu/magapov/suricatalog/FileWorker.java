@@ -108,13 +108,13 @@ public class FileWorker implements Runnable {
 					parseDepth(parser, "", header, logs);
 					
 					for(; headerPos < header.size(); headerPos++) {
-						outputStreamHeader.write((header.get(headerPos) + ",").getBytes());
+						outputStreamHeader.write((header.get(headerPos) + "|").getBytes());
 					}
 					
 					for(int logPos = 0; logPos < logs.size(); logPos++) {
 						outputStream.write((logs.get(logPos).isEmpty() ? "" : logs.get(logPos)).getBytes());
 						if(logPos != logs.size() - 1)
-							outputStream.write(",".getBytes());
+							outputStream.write("|".getBytes());
 						else
 							outputStream.write("\n".getBytes());
 					}
