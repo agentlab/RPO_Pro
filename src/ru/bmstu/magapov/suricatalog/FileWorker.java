@@ -103,17 +103,17 @@ public class FileWorker implements Runnable {
 					
 					parser.nextToken();
 					
-					ArrayList<String> logs = new ArrayList<String>();
+					ArrayList<String> values = new ArrayList<String>();
 					
-					parseDepth(parser, "", header, logs);
+					parseDepth(parser, "", header, values);
 					
 					for(; headerPos < header.size(); headerPos++) {
 						outputStreamHeader.write((header.get(headerPos) + "|").getBytes());
 					}
 					
-					for(int logPos = 0; logPos < logs.size(); logPos++) {
-						outputStream.write((logs.get(logPos).isEmpty() ? "" : logs.get(logPos)).getBytes());
-						if(logPos != logs.size() - 1)
+					for(int logPos = 0; logPos < values.size(); logPos++) {
+						outputStream.write((values.get(logPos).isEmpty() ? "" : values.get(logPos)).getBytes());
+						if(logPos != values.size() - 1)
 							outputStream.write("|".getBytes());
 						else
 							outputStream.write("\n".getBytes());
@@ -131,7 +131,7 @@ public class FileWorker implements Runnable {
 		}
 	}
 	
-	private void parseDepth(JsonParser parser, String keyPrefix, ArrayList<String> header, ArrayList<String> logs) throws IOException{
+	private void parseDepth(JsonParser parser, String keyPrefix, ArrayList<String> header, ArrayList<String> values) throws IOException{
 		String parseKey = new String();		
 		
 		while (!parser.isClosed()) {
@@ -142,17 +142,17 @@ public class FileWorker implements Runnable {
 					 || JsonToken.VALUE_FALSE.equals(token) || JsonToken.VALUE_NUMBER_INT.equals(token)) {
 				if(!parseKey.isEmpty() && !header.contains(parseKey))
 					header.add(parseKey);
-				if (header.indexOf(parseKey) > logs.size() - 1) {
-					for (int i = logs.size(); i <= header.indexOf(parseKey); i++) {
-						logs.add("");
+				if (header.indexOf(parseKey) > values.size() - 1) {
+					for (int i = values.size(); i <= header.indexOf(parseKey); i++) {
+						values.add("");
 					}
 				}
-				logs.set(header.indexOf(parseKey), parser.getValueAsString());
+				values.set(header.indexOf(parseKey), parser.getValueAsString());
 				parseKey = "";
 			} else if (JsonToken.START_OBJECT.equals(token)) {
 				if(!parseKey.isEmpty())
 					keyPrefix = parseKey + "-" + keyPrefix;
-				parseDepth(parser, keyPrefix, header, logs);
+				parseDepth(parser, keyPrefix, header, values);
 				keyPrefix = keyPrefix.replace(parseKey + "-", "");
 				parseKey = "";
 			} else if (JsonToken.END_OBJECT.equals(token)) {
